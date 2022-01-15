@@ -21,17 +21,50 @@ namespace mvc.Controllers
         [Route("/alunos")]
         public IActionResult Index()
         {
-            // ViewBag.Alunos = new {
-            //     Mensagem = "Testeeeeee"
-            // };
-
-            // ViewData["Teste"] = "sssss";
-
             return View(Aluno.Todos());
+        }
 
-            // return View(new {
-            //     Mensagem = "Testeeeeee"
-            // });
+        [Route("/alunos/Novo")]
+        public IActionResult Novo()
+        {
+            return View();
+        }
+
+
+        [Route("/alunos/Incluir")]
+        [HttpPost]
+        public IActionResult Incluir(Aluno aluno)
+        {
+            //Console.WriteLine(aluno.Nome);
+            aluno.Salvar();
+            return Redirect("/alunos");
+        }
+
+
+        [Route("/alunos/Editar")]
+        [HttpGet]
+        public IActionResult Editar(int id)
+        {
+            var aluno = Aluno.BuscarPorId(id);
+            ViewBag.Aluno = aluno;
+            return View();
+        }
+
+        [Route("/alunos/Editar")]
+        [HttpPost]
+        public IActionResult Editar(Aluno aluno)
+        {
+            aluno.Salvar();
+            return Redirect("/alunos");
+        }
+
+        [Route("/alunos/Excluir")]
+        public void Excluir(int id)
+        {
+            //Console.WriteLine(aluno.Nome);
+            Aluno.ApagarPorId(id);
+
+            Response.Redirect("/alunos");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

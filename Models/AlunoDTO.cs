@@ -34,7 +34,6 @@ namespace mvc.Models
 
                 sqlCommand.Parameters.AddWithValue("@matricula", aluno.Matricula);
                 sqlCommand.Parameters.AddWithValue("@notas", string.Join(",", aluno.Notas.ToArray()));
-
                 sqlCommand.ExecuteNonQuery();
 
                 sqlConn.Close();
@@ -57,7 +56,7 @@ namespace mvc.Models
 
             sqlCommand.Parameters.AddWithValue("@matricula", aluno.Matricula);
 
-            sqlCommand.Parameters.AddWithValue("@notas", string.Join(",", aluno.Notas.ToArray()));
+            sqlCommand.Parameters.AddWithValue("@notas", aluno.notasEditar);
 
             //Não espera retorno
             sqlCommand.ExecuteNonQuery();
@@ -97,14 +96,14 @@ namespace mvc.Models
             //Enquanto houver linha
             while (reader.Read())
             {
-                var notas = new List<double>();
+                var notas = new List<string>();
                 string strNotas = reader["notas"].ToString();
 
                 //Cria um array de notas, já que no banco estão em apenas um campo
                 foreach (var nota in strNotas.Split(','))
                 {
                     //Adiciona as notas retornadas na consulta
-                    notas.Add(Convert.ToDouble(nota));
+                    notas.Add(nota);
                 }
 
                 var aluno = new Aluno()
@@ -123,7 +122,39 @@ namespace mvc.Models
 
             return alunos;
         }
+        public static Aluno BuscarPorId(int id)
+        {
+            var aluno = new Aluno();
 
+            SqlConnection sqlConn = new SqlConnection(connectionString());
+            sqlConn.Open();
+
+            SqlCommand sqlCommand = new SqlCommand($"select * from alunos where id={id}", sqlConn);
+            var reader = sqlCommand.ExecuteReader();
+            if (reader.Read())
+            {
+                var notasEditar = new List<string>();
+                string strNotas = reader["notas"].ToString();
+                foreach (var nota in strNotas.Split(','))
+                {
+                    notasEditar.Add(nota);
+                }
+
+                aluno = new Aluno()
+                {
+                    Id = Convert.ToInt32(reader["id"]),
+                    Nome = reader["nome"].ToString(),
+                    Matricula = reader["matricula"].ToString(),
+                    notasEditar = reader["notas"].ToString(),
+                };
+
+            }
+
+            sqlConn.Close();
+            sqlConn.Dispose();
+            return aluno;
+        }
         #endregion
+
     }
 }

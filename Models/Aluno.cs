@@ -5,19 +5,21 @@ using System.Data.SqlClient;
 
 namespace mvc.Models
 {
-    public partial class Aluno
+  public partial class Aluno
     {
         #region "Propriedades"
         public int Id { get; set; }
         public string Nome { get; set; }
         public string Matricula { get; set; }
 
-        private List<double> notas;
-        public List<double> Notas
+        //Criação de atributo para resolver o problema da edição, onde não estava salvando as notas após alteração
+        public string notasEditar { get; set; }
+        private List<string> notas;     
+        public List<string> Notas
         {
             get
             {
-                if (this.notas == null) this.notas = new List<double>();
+                if (this.notas == null) this.notas = new List<string>();
                 return this.notas;
             }
             set
@@ -29,16 +31,25 @@ namespace mvc.Models
         #endregion
 
         #region Metodos de instancia
-
-        public string StrNotas(){
-            return string.Join(",", this.Notas.ToArray());
+        public string StrNotas()
+        {
+            return string.Join(", ", this.Notas.ToArray());
         }
+
+        public void AtualizaNotas()
+        {
+            foreach (var nota in notasEditar.Split(','))
+            {
+                Notas.Add(nota);
+            }
+        }
+        
         public double CalcularMedia()
         {
             var somaNotas = 0.0;
             foreach (var nota in this.Notas)
             {
-                somaNotas += nota;
+                somaNotas += Convert.ToDouble(nota);
             }
             return somaNotas / this.Notas.Count;
         }
